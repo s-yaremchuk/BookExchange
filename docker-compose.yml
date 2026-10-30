@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: book_exchange_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: book_exchange
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: book_exchange_mail
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
