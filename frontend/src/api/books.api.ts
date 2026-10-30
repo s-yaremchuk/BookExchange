@@ -36,3 +36,7 @@ export async function addBookApi(data: FormData): Promise<Book> {
 export async function deleteMyBookApi(id: string): Promise<void> {
   await apiClient.delete(`/me/books/${encodeURIComponent(id)}`);
 }
+
+export async function deleteBookApi(id: string): Promise<void> {
+  await apiClient.delete(`/books/${encodeURIComponent(id)}`);
+}

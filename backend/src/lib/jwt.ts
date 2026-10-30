@@ -1,6 +1,9 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 import { env } from '../config/env';
+import { z } from 'zod';
+
+const payloadSchema = z.object({ sub: z.string().uuid(), role: z.nativeEnum(Role) });
 
 export interface JwtPayload {
   sub: string;
@@ -16,5 +19,5 @@ export function signToken(payload: JwtPayload): string {
 }
 
 export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, env.JWT_SECRET, { algorithms: ['HS256'] }) as JwtPayload;
+  return payloadSchema.parse(jwt.verify(token, env.JWT_SECRET, { algorithms: ['HS256'] }));
 }

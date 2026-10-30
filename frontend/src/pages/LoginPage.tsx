@@ -1,4 +1,6 @@
-import { useState, FC } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import type { ApiErrorResponse } from '../types';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
@@ -14,7 +16,7 @@ export const LoginPage: FC = () => {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mutation = useMutation({ mutationFn: loginApi });
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/books';
 
@@ -36,14 +38,13 @@ export const LoginPage: FC = () => {
   }
 
   const onSubmit = async (values: LoginFormValues) => {
-    setIsSubmitting(true);
     try {
-      const response = await loginApi(values);
+      const response = await mutation.mutateAsync(values);
       login(response.token, response.user);
       toast.success('Signed in successfully');
       navigate(from, { replace: true });
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response) {
+      if (axios.isAxiosError<ApiErrorResponse>(err) && err.response) {
         const data = err.response.data;
         if (data.errors) {
           Object.entries(data.errors).forEach(([field, msg]) => {
@@ -57,8 +58,6 @@ export const LoginPage: FC = () => {
       } else {
         toast.error('Network error. Please try again');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -66,10 +65,10 @@ export const LoginPage: FC = () => {
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-slate-50">
       <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-slate-200 p-8 space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Sign in to your account</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Welcome back to Book Exchange
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Sign in to your account
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">Welcome back to Book Exchange</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
@@ -91,7 +90,7 @@ export const LoginPage: FC = () => {
             {...register('password')}
           />
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
+          <Button type="submit" className="w-full" isLoading={mutation.isPending}>
             Sign in
           </Button>
         </form>

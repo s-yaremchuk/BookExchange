@@ -21,7 +21,9 @@ export function toPublicUser(user: Pick<User, 'id' | 'name' | 'email' | 'role'>)
   };
 }
 
-export async function registerUser(input: RegisterInput): Promise<{ token: string; user: PublicUser }> {
+export async function registerUser(
+  input: RegisterInput,
+): Promise<{ token: string; user: PublicUser }> {
   const existing = await prisma.user.findUnique({
     where: { email: input.email },
   });
@@ -83,7 +85,7 @@ export async function getCurrentUser(userId: string): Promise<PublicUser> {
   });
 
   if (!user) {
-    throw new AppError(404, 'User not found');
+    throw new AppError(401, 'Account no longer exists');
   }
 
   return toPublicUser(user);

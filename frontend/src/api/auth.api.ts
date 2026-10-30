@@ -23,7 +23,7 @@ export async function registerApi(data: RegisterPayload): Promise<AuthResponse> 
   return response.data;
 }
 
-export async function getMeApi(): Promise<User> {
-  const response = await apiClient.get<User>('/auth/me');
+export async function getMeApi(signal?: AbortSignal): Promise<User> {
+  const response = await apiClient.get<User>('/auth/me', { signal });
   return response.data;
 }

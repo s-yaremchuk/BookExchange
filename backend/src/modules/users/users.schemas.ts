@@ -7,11 +7,15 @@ export const getUsersQuerySchema = z.object({
 });
 
 export const userIdParamSchema = z.object({
-  id: z.string().min(1, 'User ID is required'),
+  id: z.string().uuid('Invalid user ID'),
 });
 
 export const createUserSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must not exceed 50 characters'),
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must not exceed 50 characters'),
   email: z.string().trim().toLowerCase().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.nativeEnum(Role),
@@ -19,7 +23,12 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = z
   .object({
-    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(50, 'Name must not exceed 50 characters').optional(),
+    name: z
+      .string()
+      .trim()
+      .min(2, 'Name must be at least 2 characters')
+      .max(50, 'Name must not exceed 50 characters')
+      .optional(),
     email: z.string().trim().toLowerCase().email('Invalid email address').optional(),
     password: z.string().min(8, 'Password must be at least 8 characters').optional(),
     role: z.nativeEnum(Role).optional(),

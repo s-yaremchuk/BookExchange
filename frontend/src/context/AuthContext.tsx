@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,6 +21,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const controller = new AbortController();
     async function initAuth() {
       const storedToken = localStorage.getItem('token');
       if (!storedToken) {
@@ -28,19 +30,22 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }
 
       try {
-        const currentUser = await getMeApi();
+        const currentUser = await getMeApi(controller.signal);
+        if (controller.signal.aborted || localStorage.getItem('token') !== storedToken) return;
         setUser(currentUser);
         setToken(storedToken);
       } catch {
+        if (controller.signal.aborted || localStorage.getItem('token') !== storedToken) return;
         localStorage.removeItem('token');
         setUser(null);
         setToken(null);
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     initAuth();
+    return () => controller.abort();
   }, []);
 
   const login = (newToken: string, newUser: User) => {
@@ -48,6 +53,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(newUser);
+    setIsLoading(false);
   };
 
   const logout = () => {
@@ -55,10 +61,11 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setIsLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, updateUser: setUser }}>
       {children}
     </AuthContext.Provider>
   );

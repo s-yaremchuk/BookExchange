@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios';
 import { Link, useParams } from 'react-router-dom';
 import { BookCover } from '../components/books/BookCover';
+import { AdminBookDelete } from '../components/books/AdminBookDelete';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Spinner } from '../components/ui/Spinner';
@@ -61,6 +62,9 @@ export function BookDetailsPage() {
               >
                 Request exchange
               </Button>
+            )}
+            {user?.role === 'ADMIN' && (
+              <AdminBookDelete key={book.id} id={book.id} name={book.name} />
             )}
           </div>
         </article>

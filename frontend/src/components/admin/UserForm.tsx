@@ -11,7 +11,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
 export function UserForm({ user, onClose }: { user?: User; onClose: () => void }) {
-  const { user: currentUser, login, token } = useAuth();
+  const { user: currentUser, updateUser } = useAuth();
   const { save } = useUserMutations();
   const {
     register,
@@ -35,7 +35,7 @@ export function UserForm({ user, onClose }: { user?: User; onClose: () => void }
         id: user?.id,
         data: { ...fields, ...(password ? { password } : {}) },
       });
-      if (updated.id === currentUser?.id && token) login(token, updated);
+      if (updated.id === currentUser?.id) updateUser(updated);
       toast.success(user ? 'User updated' : 'User added');
       onClose();
     } catch (error) {

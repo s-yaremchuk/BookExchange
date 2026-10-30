@@ -8,18 +8,29 @@ export const getBooksQuerySchema = z.object({
 });
 
 export const bookIdParamSchema = z.object({
-  id: z.string().min(1, 'Book ID is required'),
+  id: z.string().uuid('Invalid book ID'),
 });
 
 export const createBookSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required').max(150, 'Name must not exceed 150 characters'),
-  author: z.string().trim().min(1, 'Author is required').max(150, 'Author must not exceed 150 characters'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Name is required')
+    .max(150, 'Name must not exceed 150 characters'),
+  author: z
+    .string()
+    .trim()
+    .min(1, 'Author is required')
+    .max(150, 'Author must not exceed 150 characters'),
   photoUrl: z
     .string()
     .trim()
-    .refine((val) => !val || /^https?:\/\/.+/i.test(val), {
-      message: 'Photo URL must be a valid HTTP or HTTPS URL',
-    })
+    .refine(
+      (val) => !val || (z.string().url().safeParse(val).success && /^https?:\/\//i.test(val)),
+      {
+        message: 'Photo URL must be a valid HTTP or HTTPS URL',
+      },
+    )
     .optional(),
 });
 

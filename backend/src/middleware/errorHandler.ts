@@ -1,8 +1,29 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { AppError } from '../utils/AppError';
+import multer from 'multer';
+import { Prisma } from '@prisma/client';
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  if (err instanceof SyntaxError && 'type' in err && err.type === 'entity.parse.failed') {
+    res.status(400).json({ message: 'Invalid JSON body' });
+    return;
+  }
+  if (err instanceof multer.MulterError) {
+    res.status(400).json({
+      message:
+        err.code === 'LIMIT_FILE_SIZE' ? 'Photo must not exceed 2 MB' : 'Invalid photo upload',
+      errors: {
+        photo:
+          err.code === 'LIMIT_FILE_SIZE' ? 'Photo must not exceed 2 MB' : 'Invalid photo upload',
+      },
+    });
+    return;
+  }
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+    res.status(409).json({ message: 'A record with these details already exists' });
+    return;
+  }
   if (err instanceof AppError) {
     const body: { message: string; errors?: Record<string, string> } = { message: err.message };
     if (err.errors) body.errors = err.errors;

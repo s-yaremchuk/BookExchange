@@ -1,4 +1,6 @@
-import { useState, FC } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import type { ApiErrorResponse } from '../types';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
@@ -13,7 +15,7 @@ import { Button } from '../components/ui/Button';
 export const RegisterPage: FC = () => {
   const { user, login } = useAuth();
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mutation = useMutation({ mutationFn: registerApi });
 
   const {
     register,
@@ -35,9 +37,8 @@ export const RegisterPage: FC = () => {
   }
 
   const onSubmit = async (values: RegisterFormValues) => {
-    setIsSubmitting(true);
     try {
-      const response = await registerApi({
+      const response = await mutation.mutateAsync({
         name: values.name,
         email: values.email,
         password: values.password,
@@ -46,7 +47,7 @@ export const RegisterPage: FC = () => {
       toast.success('Account created successfully');
       navigate('/books', { replace: true });
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response) {
+      if (axios.isAxiosError<ApiErrorResponse>(err) && err.response) {
         const data = err.response.data;
         if (data.errors) {
           Object.entries(data.errors).forEach(([field, msg]) => {
@@ -60,8 +61,6 @@ export const RegisterPage: FC = () => {
       } else {
         toast.error('Network error. Please try again');
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -112,17 +111,14 @@ export const RegisterPage: FC = () => {
             {...register('confirmPassword')}
           />
 
-          <Button type="submit" className="w-full" isLoading={isSubmitting}>
+          <Button type="submit" className="w-full" isLoading={mutation.isPending}>
             Create account
           </Button>
         </form>
 
         <p className="text-center text-sm text-slate-600">
           Already have an account?{' '}
-          <Link
-            to="/login"
-            className="font-medium text-indigo-600 hover:text-indigo-500 underline"
-          >
+          <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500 underline">
             Sign in
           </Link>
         </p>

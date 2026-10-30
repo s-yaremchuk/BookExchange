@@ -27,4 +27,8 @@ app.use('/api/books', exchangeRouter);
 app.use('/api/me/books', meBooksRouter);
 app.use('/api/users', usersRouter);
 
+app.use('/api', (_req, res) => {
+  res.status(404).json({ message: 'Endpoint not found' });
+});
+
 app.use(errorHandler);

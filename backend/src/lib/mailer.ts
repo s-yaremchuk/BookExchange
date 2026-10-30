@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { env } from '../config/env';
 
 export interface SendMailOptions {
@@ -9,7 +10,7 @@ export interface SendMailOptions {
   html: string;
 }
 
-const transportOptions: nodemailer.TransportOptions = {
+const transportOptions: SMTPTransport.Options = {
   host: env.SMTP_HOST,
   port: env.SMTP_PORT,
   secure: false,
@@ -19,7 +20,7 @@ const transportOptions: nodemailer.TransportOptions = {
         pass: env.SMTP_PASS,
       }
     : undefined,
-} as nodemailer.TransportOptions;
+};
 
 export const transporter = nodemailer.createTransport(transportOptions);
 

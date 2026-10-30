@@ -33,7 +33,7 @@ export async function getUsersList(query: GetUsersQuery): Promise<PaginatedUsers
         role: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
       skip,
       take: limit,
     }),

@@ -10,11 +10,7 @@ const maxFileSize = 2 * 1024 * 1024; // 2 MB
 
 const storage = multer.memoryStorage();
 
-const fileFilter = (
-  _req: Request,
-  file: Express.Multer.File,
-  cb: multer.FileFilterCallback,
-) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -35,7 +31,12 @@ export async function saveUploadedFile(file: Express.Multer.File): Promise<strin
     await fs.promises.mkdir(uploadsDir, { recursive: true });
   }
 
-  const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+  const extensions: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+  };
+  const ext = extensions[file.mimetype];
   const fileName = `${crypto.randomUUID()}${ext}`;
   const filePath = path.join(uploadsDir, fileName);
 
