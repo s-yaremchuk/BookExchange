@@ -8,6 +8,7 @@ import { authRouter } from './modules/auth/auth.routes';
 import { booksRouter } from './modules/books/books.routes';
 import { meBooksRouter } from './modules/books/me-books.routes';
 import { exchangeRouter } from './modules/exchange/exchange.routes';
+import { usersRouter } from './modules/users/users.routes';
 
 export const app: Express = express();
 
@@ -24,5 +25,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/books', booksRouter);
 app.use('/api/books', exchangeRouter);
 app.use('/api/me/books', meBooksRouter);
+app.use('/api/users', usersRouter);
 
 app.use(errorHandler);

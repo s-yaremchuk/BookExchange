@@ -159,3 +159,18 @@ export async function deleteMyBook(ownerId: string, bookId: string): Promise<voi
     where: { id: bookId },
   });
 }
+
+export async function deleteBookByAdmin(id: string): Promise<void> {
+  const book = await prisma.book.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+
+  if (!book) {
+    throw new AppError(404, 'Book not found');
+  }
+
+  await prisma.book.delete({
+    where: { id },
+  });
+}
