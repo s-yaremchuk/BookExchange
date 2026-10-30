@@ -20,3 +20,19 @@ export async function getBookApi(id: string, signal?: AbortSignal): Promise<Book
   const response = await apiClient.get<BookDetails>(`/books/${encodeURIComponent(id)}`, { signal });
   return response.data;
 }
+
+export async function getMyBooksApi(signal?: AbortSignal): Promise<Book[]> {
+  const response = await apiClient.get<Book[]>('/me/books', { signal });
+  return response.data;
+}
+
+export async function addBookApi(data: FormData): Promise<Book> {
+  const response = await apiClient.post<Book>('/me/books', data, {
+    headers: { 'Content-Type': undefined },
+  });
+  return response.data;
+}
+
+export async function deleteMyBookApi(id: string): Promise<void> {
+  await apiClient.delete(`/me/books/${encodeURIComponent(id)}`);
+}
