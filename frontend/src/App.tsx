@@ -11,6 +11,8 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { BooksPage } from './pages/BooksPage';
 import { BookDetailsPage } from './pages/BookDetailsPage';
 import { MyBooksPage } from './pages/MyBooksPage';
+import { AdminPage } from './pages/AdminPage';
+import { AdminRoute } from './routes/AdminRoute';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +38,9 @@ export const App: FC = () => {
                 <Route path="/books" element={<BooksPage />} />
                 <Route path="/books/:id" element={<BookDetailsPage />} />
                 <Route path="/me/books" element={<MyBooksPage />} />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminPage />} />
+                </Route>
               </Route>
             </Route>
 

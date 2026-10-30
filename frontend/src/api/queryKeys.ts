@@ -1,6 +1,8 @@
 import type { BooksQuery } from './books.api';
 
 export const queryKeys = {
+  allUsers: ['users'] as const,
+  users: (page: number) => ['users', page] as const,
   allBooks: ['books'] as const,
   myBooks: ['my-books'] as const,
   books: (params: BooksQuery) => ['books', params] as const,
