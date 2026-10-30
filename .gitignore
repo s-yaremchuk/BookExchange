@@ -34,6 +34,3 @@ Thumbs.db
 # Uploads (keep directory, ignore files)
 backend/uploads/*
 !backend/uploads/.gitkeep
-
-# Prisma
-backend/prisma/migrations/
