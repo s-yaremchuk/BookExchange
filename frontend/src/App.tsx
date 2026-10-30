@@ -8,6 +8,7 @@ import { Layout } from './components/layout/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { BooksPage } from './pages/BooksPage';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,14 +31,7 @@ export const App: FC = () => {
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/books" replace />} />
-                <Route
-                  path="/books"
-                  element={
-                    <div>
-                      <h1 className="text-2xl font-bold text-slate-900">Books Catalog</h1>
-                    </div>
-                  }
-                />
+                <Route path="/books" element={<BooksPage />} />
               </Route>
             </Route>
 
