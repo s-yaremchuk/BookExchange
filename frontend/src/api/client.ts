@@ -18,7 +18,13 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestToken = error.config?.headers?.Authorization;
+    const currentToken = localStorage.getItem('token');
+    if (
+      error.response?.status === 401 &&
+      currentToken &&
+      requestToken === `Bearer ${currentToken}`
+    ) {
       localStorage.removeItem('token');
       if (
         !window.location.pathname.startsWith('/login') &&

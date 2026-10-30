@@ -13,6 +13,8 @@ import { BookDetailsPage } from './pages/BookDetailsPage';
 import { MyBooksPage } from './pages/MyBooksPage';
 import { AdminPage } from './pages/AdminPage';
 import { AdminRoute } from './routes/AdminRoute';
+import { ProfilePage } from './pages/ProfilePage';
+import { PasswordPage } from './pages/PasswordPage';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +33,8 @@ export const App: FC = () => {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<PasswordPage key="forgot-password" />} />
+            <Route path="/reset-password" element={<PasswordPage key="reset-password" reset />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<Layout />}>
@@ -38,6 +42,7 @@ export const App: FC = () => {
                 <Route path="/books" element={<BooksPage />} />
                 <Route path="/books/:id" element={<BookDetailsPage />} />
                 <Route path="/me/books" element={<MyBooksPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route element={<AdminRoute />}>
                   <Route path="/admin" element={<AdminPage />} />
                 </Route>

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import type { ApiErrorResponse } from '../types';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
@@ -17,6 +17,7 @@ export const LoginPage: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const mutation = useMutation({ mutationFn: loginApi });
+  const [showPassword, setShowPassword] = useState(false);
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/books';
 
@@ -71,6 +72,9 @@ export const LoginPage: FC = () => {
           <p className="mt-2 text-sm text-slate-600">Welcome back to Book Exchange</p>
         </div>
 
+        <Link to="/forgot-password" className="block text-sm text-indigo-600 underline">
+          Forgot password?
+        </Link>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <Input
             label="Email address"
@@ -83,12 +87,21 @@ export const LoginPage: FC = () => {
 
           <Input
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"
             autoComplete="current-password"
             error={errors.password?.message}
             {...register('password')}
           />
+
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={(event) => setShowPassword(event.target.checked)}
+            />
+            Show password
+          </label>
 
           <Button type="submit" className="w-full" isLoading={mutation.isPending}>
             Sign in

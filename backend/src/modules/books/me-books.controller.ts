@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { AppError } from '../../utils/AppError';
-import { saveUploadedFile } from '../../middleware/upload';
+import { saveUploadedFile, removeUploadedFile } from '../../lib/uploads';
 import { getMyBooks, createBook, deleteMyBook } from './books.service';
 import { createBookSchema, bookIdParamSchema } from './books.schemas';
 
@@ -31,13 +31,18 @@ export const createMyBookHandler = asyncHandler(async (req: Request, res: Respon
     });
   }
 
-  const book = await createBook(req.user!.id, {
-    name: parsed.data.name,
-    author: parsed.data.author,
-    photoUrl,
-  });
+  try {
+    const book = await createBook(req.user!.id, {
+      name: parsed.data.name,
+      author: parsed.data.author,
+      photoUrl,
+    });
 
-  res.status(201).json(book);
+    res.status(201).json(book);
+  } catch (error) {
+    if (req.file) await removeUploadedFile(photoUrl);
+    throw error;
+  }
 });
 
 export const deleteMyBookHandler = asyncHandler(async (req: Request, res: Response) => {

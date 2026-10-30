@@ -1,3 +1,4 @@
+import { removeUploadedFile } from '../../lib/uploads';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../utils/AppError';
@@ -144,7 +145,7 @@ export async function createBook(
 export async function deleteMyBook(ownerId: string, bookId: string): Promise<void> {
   const book = await prisma.book.findUnique({
     where: { id: bookId },
-    select: { ownerId: true },
+    select: { ownerId: true, photoUrl: true },
   });
 
   if (!book) {
@@ -158,12 +159,13 @@ export async function deleteMyBook(ownerId: string, bookId: string): Promise<voi
   await prisma.book.delete({
     where: { id: bookId },
   });
+  await removeUploadedFile(book.photoUrl);
 }
 
 export async function deleteBookByAdmin(id: string): Promise<void> {
   const book = await prisma.book.findUnique({
     where: { id },
-    select: { id: true },
+    select: { id: true, photoUrl: true },
   });
 
   if (!book) {
@@ -173,4 +175,5 @@ export async function deleteBookByAdmin(id: string): Promise<void> {
   await prisma.book.delete({
     where: { id },
   });
+  await removeUploadedFile(book.photoUrl);
 }

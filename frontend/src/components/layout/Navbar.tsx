@@ -63,6 +63,9 @@ export const Navbar: FC = () => {
             </Link>
 
             <div className="hidden lg:ml-8 lg:flex lg:space-x-1">
+              <NavLink to="/profile" className={navLinkClass}>
+                Profile
+              </NavLink>
               <NavLink to="/books" className={navLinkClass}>
                 Books
               </NavLink>
@@ -135,6 +138,9 @@ export const Navbar: FC = () => {
           hidden={!isOpen}
           className="lg:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1"
         >
+          <NavLink to="/profile" className={mobileNavLinkClass} onClick={() => setIsOpen(false)}>
+            Profile
+          </NavLink>
           <NavLink to="/books" className={mobileNavLinkClass} onClick={() => setIsOpen(false)}>
             Books
           </NavLink>

@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 const schema = z.object({
   PORT: z.coerce.number().default(3000),
+  UPLOADS_DIR: z.string().min(1).default('uploads'),
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(1),
   JWT_EXPIRES_IN: z.string().default('7d'),

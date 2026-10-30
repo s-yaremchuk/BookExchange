@@ -1,7 +1,4 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
 import { Request } from 'express';
 import { AppError } from '../utils/AppError';
 
@@ -23,24 +20,3 @@ export const uploadCover = multer({
   limits: { fileSize: maxFileSize },
   fileFilter,
 });
-
-const uploadsDir = path.resolve(__dirname, '../../uploads');
-
-export async function saveUploadedFile(file: Express.Multer.File): Promise<string> {
-  if (!fs.existsSync(uploadsDir)) {
-    await fs.promises.mkdir(uploadsDir, { recursive: true });
-  }
-
-  const extensions: Record<string, string> = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-  };
-  const ext = extensions[file.mimetype];
-  const fileName = `${crypto.randomUUID()}${ext}`;
-  const filePath = path.join(uploadsDir, fileName);
-
-  await fs.promises.writeFile(filePath, file.buffer);
-
-  return `/uploads/${fileName}`;
-}

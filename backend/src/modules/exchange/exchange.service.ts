@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma';
 import { sendMail } from '../../lib/mailer';
 import { AppError } from '../../utils/AppError';
+import { Prisma } from '@prisma/client';
 
 export async function createExchangeRequest(
   requesterId: string,
@@ -54,7 +55,12 @@ export async function createExchangeRequest(
   });
 
   if (existingRequest) {
-    throw new AppError(409, 'Request already sent');
+    throw new AppError(
+      409,
+      existingRequest.deliveryStatus === 'SENT'
+        ? 'Request already sent'
+        : 'Request delivery is pending or unconfirmed',
+    );
   }
 
   const requester = await prisma.user.findUnique({
@@ -94,6 +100,19 @@ ${booksListHtml}
 </ol>
 <p>You can reply directly to this email to coordinate the exchange.</p>`;
 
+  let requestId: string;
+  try {
+    const request = await prisma.exchangeRequest.create({
+      data: { bookId, requesterId, deliveryStatus: 'PENDING' },
+    });
+    requestId = request.id;
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new AppError(409, 'Request already sent or in progress');
+    }
+    throw error;
+  }
+
   try {
     await sendMail({
       to: book.owner.email,
@@ -103,15 +122,27 @@ ${booksListHtml}
       html: htmlBody,
     });
   } catch (err) {
-    console.error('Failed to send exchange email:', err);
-    throw new AppError(502, 'Failed to send exchange request email');
+    const definitelyRejected =
+      typeof err === 'object' &&
+      err !== null &&
+      (('responseCode' in err && typeof err.responseCode === 'number' && err.responseCode >= 400) ||
+        ('command' in err &&
+          typeof err.command === 'string' &&
+          ['CONN', 'EHLO', 'HELO', 'AUTH', 'MAIL FROM', 'RCPT TO'].includes(err.command)));
+    if (definitelyRejected) {
+      await prisma.exchangeRequest.delete({ where: { id: requestId } });
+    }
+    throw new AppError(
+      502,
+      definitelyRejected
+        ? 'Failed to send exchange request email. Please try again.'
+        : 'Email delivery could not be confirmed. The request is saved to prevent duplicate emails.',
+    );
   }
 
-  await prisma.exchangeRequest.create({
-    data: {
-      bookId,
-      requesterId,
-    },
+  await prisma.exchangeRequest.update({
+    where: { id: requestId },
+    data: { deliveryStatus: 'SENT' },
   });
 
   return { message: 'Request sent' };

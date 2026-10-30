@@ -1,3 +1,4 @@
+import { removeUploadedFile } from '../../lib/uploads';
 import bcrypt from 'bcrypt';
 import { Role } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
@@ -165,7 +166,10 @@ export async function deleteUser(currentAdminId: string, targetUserId: string): 
     throw new AppError(404, 'User not found');
   }
 
-  await prisma.user.delete({
+  const deleted = await prisma.user.delete({
     where: { id: targetUserId },
+    select: { avatarUrl: true, books: { select: { photoUrl: true } } },
   });
+  await Promise.all(deleted.books.map((book) => removeUploadedFile(book.photoUrl)));
+  if (deleted.avatarUrl) await removeUploadedFile(deleted.avatarUrl);
 }

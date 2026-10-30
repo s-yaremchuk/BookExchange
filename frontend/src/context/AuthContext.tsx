@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode, FC } from 'r
 import { useQueryClient } from '@tanstack/react-query';
 import { User } from '../types';
 import { getMeApi } from '../api/auth.api';
+import { isAxiosError } from 'axios';
+import { Button } from '../components/ui/Button';
 
 interface AuthContextType {
   user: User | null;
@@ -19,8 +21,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const queryClient = useQueryClient();
+  const [sessionError, setSessionError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    setSessionError(false);
+    setIsLoading(true);
     const controller = new AbortController();
     async function initAuth() {
       const storedToken = localStorage.getItem('token');
@@ -34,11 +40,15 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         if (controller.signal.aborted || localStorage.getItem('token') !== storedToken) return;
         setUser(currentUser);
         setToken(storedToken);
-      } catch {
+      } catch (error) {
         if (controller.signal.aborted || localStorage.getItem('token') !== storedToken) return;
-        localStorage.removeItem('token');
-        setUser(null);
-        setToken(null);
+        if (isAxiosError(error) && error.response?.status === 401) {
+          localStorage.removeItem('token');
+          setUser(null);
+          setToken(null);
+        } else {
+          setSessionError(true);
+        }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
@@ -46,7 +56,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     initAuth();
     return () => controller.abort();
-  }, []);
+  }, [attempt]);
 
   const login = (newToken: string, newUser: User) => {
     queryClient.clear();
@@ -57,6 +67,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const logout = () => {
+    setSessionError(false);
     queryClient.clear();
     localStorage.removeItem('token');
     setToken(null);
@@ -66,7 +77,22 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, token, isLoading, login, logout, updateUser: setUser }}>
-      {children}
+      {sessionError ? (
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+          <div role="alert" className="space-y-4 rounded-xl bg-white p-6 text-center shadow-sm">
+            <h1 className="text-xl font-semibold">Unable to restore your session</h1>
+            <p className="text-sm text-slate-600">Check your connection and try again.</p>
+            <div className="flex justify-center gap-3">
+              <Button onClick={() => setAttempt((value) => value + 1)}>Retry</Button>
+              <Button variant="secondary" onClick={logout}>
+                Sign out
+              </Button>
+            </div>
+          </div>
+        </main>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
