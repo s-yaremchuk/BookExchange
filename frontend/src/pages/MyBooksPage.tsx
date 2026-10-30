@@ -11,7 +11,7 @@ import { useDeleteMyBook, useMyBooks } from '../hooks/useMyBooks';
 import type { ApiErrorResponse, Book } from '../types';
 
 export function MyBooksPage() {
-  const { data: books, isPending, error, refetch } = useMyBooks();
+  const { data: books, isPending, isFetching, error, refetch } = useMyBooks();
   const deleteBook = useDeleteMyBook();
   const [isAdding, setIsAdding] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -48,7 +48,7 @@ export function MyBooksPage() {
               ? error.response?.data.message || 'Unable to load your books'
               : 'Unable to load your books'}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
+          <Button variant="secondary" isLoading={isFetching} onClick={() => void refetch()}>
             Retry
           </Button>
         </div>

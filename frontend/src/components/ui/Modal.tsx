@@ -35,10 +35,17 @@ export function Modal({ title, children, onClose, isBusy = false }: ModalProps) 
       className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl backdrop:bg-slate-900/50"
     >
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 id={titleId} className="text-xl font-semibold text-slate-900">
+        <h2 id={titleId} className="min-w-0 break-words text-xl font-semibold text-slate-900">
           {title}
         </h2>
-        <Button type="button" variant="secondary" size="sm" disabled={isBusy} onClick={onClose}>
+        <Button
+          type="button"
+          className="shrink-0"
+          variant="secondary"
+          size="sm"
+          disabled={isBusy}
+          onClick={onClose}
+        >
           Close
         </Button>
       </div>

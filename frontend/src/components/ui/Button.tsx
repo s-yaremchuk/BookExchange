@@ -26,16 +26,16 @@ export const Button: FC<ButtonProps> = ({
   };
 
   const variantClasses = {
-    primary:
-      'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 shadow-sm',
+    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 shadow-sm',
     secondary:
       'bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 focus:ring-indigo-500 shadow-sm',
-    danger:
-      'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
   };
 
   return (
     <button
+      type="button"
+      aria-busy={isLoading}
       disabled={disabled || isLoading}
       className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       {...props}

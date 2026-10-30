@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useRef, useState, FC } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
@@ -7,6 +7,7 @@ export const Navbar: FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   const handleLogout = () => {
     logout();
@@ -28,11 +29,20 @@ export const Navbar: FC = () => {
     }`;
 
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <nav
+      aria-label="Main navigation"
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && isOpen) {
+          setIsOpen(false);
+          menuButton.current?.focus();
+        }
+      }}
+      className="bg-white border-b border-slate-200 sticky top-0 z-40"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/books" className="flex items-center gap-2">
+            <Link to="/books" onClick={() => setIsOpen(false)} className="flex items-center gap-2">
               <span className="p-1.5 bg-indigo-600 text-white rounded-lg">
                 <svg
                   className="w-5 h-5"
@@ -52,7 +62,7 @@ export const Navbar: FC = () => {
               <span className="text-lg font-bold text-slate-900">Book Exchange</span>
             </Link>
 
-            <div className="hidden md:ml-8 md:flex md:space-x-1">
+            <div className="hidden lg:ml-8 lg:flex lg:space-x-1">
               <NavLink to="/books" className={navLinkClass}>
                 Books
               </NavLink>
@@ -67,23 +77,25 @@ export const Navbar: FC = () => {
             </div>
           </div>
 
-          <div className="hidden md:flex md:items-center md:gap-4">
-            <div className="text-sm">
+          <div className="hidden lg:flex lg:items-center lg:gap-4">
+            <div className="max-w-48 truncate text-sm">
               <span className="text-slate-500">Signed in as </span>
-              <span className="font-semibold text-slate-900">{user?.name}</span>
+              <span className="break-words font-semibold text-slate-900">{user?.name}</span>
             </div>
             <Button variant="secondary" size="sm" onClick={handleLogout}>
               Logout
             </Button>
           </div>
 
-          <div className="flex items-center md:hidden">
+          <div className="flex items-center lg:hidden">
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               aria-label="Toggle navigation menu"
               aria-expanded={isOpen}
+              aria-controls="mobile-navigation"
+              ref={menuButton}
             >
               {isOpen ? (
                 <svg
@@ -117,28 +129,20 @@ export const Navbar: FC = () => {
         </div>
       </div>
 
-      {isOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
-          <NavLink
-            to="/books"
-            className={mobileNavLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+      {
+        <div
+          id="mobile-navigation"
+          hidden={!isOpen}
+          className="lg:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1"
+        >
+          <NavLink to="/books" className={mobileNavLinkClass} onClick={() => setIsOpen(false)}>
             Books
           </NavLink>
-          <NavLink
-            to="/me/books"
-            className={mobileNavLinkClass}
-            onClick={() => setIsOpen(false)}
-          >
+          <NavLink to="/me/books" className={mobileNavLinkClass} onClick={() => setIsOpen(false)}>
             My books
           </NavLink>
           {user?.role === 'ADMIN' && (
-            <NavLink
-              to="/admin"
-              className={mobileNavLinkClass}
-              onClick={() => setIsOpen(false)}
-            >
+            <NavLink to="/admin" className={mobileNavLinkClass} onClick={() => setIsOpen(false)}>
               Admin
             </NavLink>
           )}
@@ -146,7 +150,7 @@ export const Navbar: FC = () => {
           <div className="pt-4 border-t border-slate-200 mt-2">
             <div className="px-3 mb-3 text-sm">
               <div className="text-slate-500">Signed in as</div>
-              <div className="font-semibold text-slate-900">{user?.name}</div>
+              <div className="break-words font-semibold text-slate-900">{user?.name}</div>
             </div>
             <Button
               variant="secondary"
@@ -161,7 +165,7 @@ export const Navbar: FC = () => {
             </Button>
           </div>
         </div>
-      )}
+      }
     </nav>
   );
 };

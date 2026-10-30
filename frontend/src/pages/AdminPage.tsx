@@ -17,7 +17,7 @@ export function AdminPage() {
   const [page, setPage] = useState(1);
   const [editor, setEditor] = useState<{ user?: User } | null>(null);
   const [selected, setSelected] = useState<User | null>(null);
-  const { data, isPending, error, refetch } = useUsers(page);
+  const { data, isPending, isFetching, error, refetch } = useUsers(page);
   const { remove } = useUserMutations();
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function AdminPage() {
               ? error.response?.data.message || 'Unable to load users'
               : 'Unable to load users'}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
+          <Button variant="secondary" isLoading={isFetching} onClick={() => void refetch()}>
             Retry
           </Button>
         </div>

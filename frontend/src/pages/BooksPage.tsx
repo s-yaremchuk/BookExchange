@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { BookGrid } from '../components/books/BookGrid';
 import { BookSearchBar } from '../components/books/BookSearchBar';
@@ -18,10 +19,25 @@ export function BooksPage() {
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const debouncedSearch = useDebounce(search);
   const isDebouncing = search !== debouncedSearch;
-  const { data, isPending, error, refetch } = useBooks(
+  const { data, isPending, isFetching, error, refetch } = useBooks(
     { search: debouncedSearch, sort, page, limit: 12 },
     !isDebouncing,
   );
+
+  useEffect(() => {
+    if (!data || isDebouncing || error) return;
+    const lastPage = Math.max(1, data.totalPages);
+    if (page > lastPage) {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set('page', String(lastPage));
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  }, [data, isDebouncing, error, page, setSearchParams]);
 
   function updateParams(key: string, value: string) {
     setSearchParams(
@@ -56,7 +72,7 @@ export function BooksPage() {
               ? error.response?.data.message || 'Unable to load books'
               : 'Unable to load books'}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
+          <Button variant="secondary" isLoading={isFetching} onClick={() => void refetch()}>
             Retry
           </Button>
         </div>

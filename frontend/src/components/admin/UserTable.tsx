@@ -10,8 +10,13 @@ interface UserTableProps {
 
 export function UserTable({ users, currentUserId, onEdit, onDelete }: UserTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
-      <table className="w-full text-left text-sm">
+    <div
+      role="region"
+      aria-label="Users table"
+      tabIndex={0}
+      className="overflow-x-auto rounded-xl bg-white shadow-sm"
+    >
+      <table className="w-full min-w-[36rem] text-left text-sm">
         <caption className="sr-only">Users</caption>
         <thead className="bg-slate-100 text-slate-700">
           <tr>

@@ -12,7 +12,7 @@ import type { ApiErrorResponse } from '../types';
 export function BookDetailsPage() {
   const { id = '' } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { data: book, isPending, error, refetch } = useBook(id);
+  const { data: book, isPending, isFetching, error, refetch } = useBook(id);
   const exchangeRequest = useRequestExchange();
   const isNotFound = isAxiosError(error) && error.response?.status === 404;
 
@@ -37,7 +37,7 @@ export function BookDetailsPage() {
               ? error.response?.data.message || 'Unable to load book'
               : 'Unable to load book'}
           </p>
-          <Button variant="secondary" onClick={() => void refetch()}>
+          <Button variant="secondary" isLoading={isFetching} onClick={() => void refetch()}>
             Retry
           </Button>
         </div>

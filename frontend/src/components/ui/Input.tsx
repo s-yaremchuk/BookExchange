@@ -7,7 +7,10 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, className = '', id, ...props }, ref) => {
+  (
+    { label, error, helperText, className = '', id, 'aria-describedby': describedBy, ...props },
+    ref,
+  ) => {
     const generatedId = useId();
     const inputId = id || generatedId;
 
@@ -27,12 +30,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               : 'border-slate-300 focus:border-indigo-500 focus:ring-indigo-500'
           } ${className}`}
           aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={
+            [describedBy, error || helperText ? `${inputId}-message` : undefined]
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
           {...props}
         />
         {error ? (
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p id={`${inputId}-message`} role="alert" className="mt-1 text-xs text-red-600">
+            {error}
+          </p>
         ) : helperText ? (
-          <p className="mt-1 text-xs text-slate-500">{helperText}</p>
+          <p id={`${inputId}-message`} className="mt-1 text-xs text-slate-500">
+            {helperText}
+          </p>
         ) : null}
       </div>
     );
