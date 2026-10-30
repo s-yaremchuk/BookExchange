@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { authRouter } from './modules/auth/auth.routes';
+import { booksRouter } from './modules/books/books.routes';
 
 export const app: Express = express();
 
@@ -16,5 +17,6 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/books', booksRouter);
 
 app.use(errorHandler);
