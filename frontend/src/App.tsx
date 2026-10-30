@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { Layout } from './components/layout/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,18 +28,20 @@ export const App: FC = () => {
             <Route path="/register" element={<RegisterPage />} />
 
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Navigate to="/books" replace />} />
-              <Route
-                path="/books"
-                element={
-                  <div className="p-8">
-                    <h1 className="text-2xl font-bold text-slate-900">Books Catalog</h1>
-                  </div>
-                }
-              />
+              <Route element={<Layout />}>
+                <Route path="/" element={<Navigate to="/books" replace />} />
+                <Route
+                  path="/books"
+                  element={
+                    <div>
+                      <h1 className="text-2xl font-bold text-slate-900">Books Catalog</h1>
+                    </div>
+                  }
+                />
+              </Route>
             </Route>
 
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
         <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
