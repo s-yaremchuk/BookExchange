@@ -11,5 +11,18 @@ export const bookIdParamSchema = z.object({
   id: z.string().min(1, 'Book ID is required'),
 });
 
+export const createBookSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(150, 'Name must not exceed 150 characters'),
+  author: z.string().trim().min(1, 'Author is required').max(150, 'Author must not exceed 150 characters'),
+  photoUrl: z
+    .string()
+    .trim()
+    .refine((val) => !val || /^https?:\/\/.+/i.test(val), {
+      message: 'Photo URL must be a valid HTTP or HTTPS URL',
+    })
+    .optional(),
+});
+
 export type GetBooksQuery = z.infer<typeof getBooksQuerySchema>;
 export type BookIdParam = z.infer<typeof bookIdParamSchema>;
+export type CreateBookInput = z.infer<typeof createBookSchema>;

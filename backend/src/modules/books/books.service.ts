@@ -97,3 +97,65 @@ export async function getBookById(id: string): Promise<BookItem> {
 
   return book;
 }
+
+export interface MyBookItem {
+  id: string;
+  name: string;
+  author: string;
+  photoUrl: string;
+  createdAt: Date;
+}
+
+export async function getMyBooks(ownerId: string): Promise<MyBookItem[]> {
+  return prisma.book.findMany({
+    where: { ownerId },
+    select: {
+      id: true,
+      name: true,
+      author: true,
+      photoUrl: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function createBook(
+  ownerId: string,
+  data: { name: string; author: string; photoUrl: string },
+): Promise<MyBookItem> {
+  return prisma.book.create({
+    data: {
+      name: data.name,
+      author: data.author,
+      photoUrl: data.photoUrl,
+      ownerId,
+    },
+    select: {
+      id: true,
+      name: true,
+      author: true,
+      photoUrl: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function deleteMyBook(ownerId: string, bookId: string): Promise<void> {
+  const book = await prisma.book.findUnique({
+    where: { id: bookId },
+    select: { ownerId: true },
+  });
+
+  if (!book) {
+    throw new AppError(404, 'Book not found');
+  }
+
+  if (book.ownerId !== ownerId) {
+    throw new AppError(403, 'You do not have permission to delete this book');
+  }
+
+  await prisma.book.delete({
+    where: { id: bookId },
+  });
+}
