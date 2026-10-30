@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { BooksPage } from './pages/BooksPage';
+import { BookDetailsPage } from './pages/BookDetailsPage';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,7 @@ export const App: FC = () => {
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/books" replace />} />
                 <Route path="/books" element={<BooksPage />} />
+                <Route path="/books/:id" element={<BookDetailsPage />} />
               </Route>
             </Route>
 

@@ -22,6 +22,14 @@ export interface Book {
   owner?: BookOwner;
 }
 
+export interface BookDetails extends Book {
+  owner: BookOwner;
+}
+
+export interface ExchangeRequestResponse {
+  message: string;
+}
+
 export interface Paginated<T> {
   items: T[];
   total: number;
